@@ -26,21 +26,25 @@ void removeSpace(std::string & input) {
 }
 
 char findOperatorSign(std::string input) {
-    auto operationIt = std::find_if(std::next(input.begin()), input.end(), [](auto el) { return operations.find(el) != operations.cend(); });
+    auto operationIt = std::find_if(std::next(input.cbegin()), input.cend(), [](auto el) { return operations.find(el) != operations.cend(); });
     return *operationIt;
 }
 
 double findFirstValue(std::string input) {
-    auto operationIt = std::find_if(std::next(input.begin()), input.end(), [](auto el) { return operations.find(el)!= operations.cend(); });
-    return std::stod(std::string {input.begin(), operationIt});
+    auto operationIt = std::find_if(std::next(input.cbegin()), input.cend(), [](auto el) { return operations.find(el)!= operations.cend(); });
+    std::string value {input.cbegin(), operationIt};
+    removeSpace(value);
+    return std::stod(value);
 }
 
 double findSecondValue(std::string input) {
-    auto operationIt = std::find_if(std::next(input.begin()), input.end(), [](auto el) { return operations.find(el) != operations.cend(); });
+    auto operationIt = std::find_if(std::next(input.cbegin()), input.cend(), [](auto el) { return operations.find(el) != operations.cend(); });
     if (*operationIt == '!') {
         return 0.0;
     }
-    return std::stod(std::string {std::next(operationIt), input.end()});
+    std::string value {std::next(operationIt), input.cend()};
+    removeSpace(value);
+    return std::stod(value);
 }
 
 double calculate(std::string input) {
@@ -110,18 +114,19 @@ void printGoodByeScreen() {
 }
 
 bool isComma(const char input) {
-    return input == '.' || ',';
+    return input == '.';
 }
 
 bool isBadCharacter(std::string input) {
+    removeSpace(input);
     return (std::any_of(input.cbegin(), input.cend(), [](auto el) { 
-        return !(std::isdigit(el) || isComma(el) || operations.find(el) != operations.cend()); }));
+        return !(std::isdigit(el) || isComma(el) || (operations.find(el) != operations.cend())); }));
 }
 
 bool isBadFormat(std::string input) {
     if (findOperatorSign(input) == '!' ) {
         return (std::any_of(input.cbegin(), input.cend(), [](auto el) { 
-            return !(isComma(el) || operations.find(el) != operations.cend()); }));
+            return !(std::isdigit(el) || isComma(el) || (operations.find(el) != operations.cend())); }));
     }
     return (operations.find(input.front()) != operations.end() && input.front() != '-');
 }
